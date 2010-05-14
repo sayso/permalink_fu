@@ -145,7 +145,8 @@ module PermalinkFu
           end
         end
       end
-      while self.class.exists?(conditions)
+
+      while ActiveRecord::Base.uncached{self.class.exists?(conditions)}
         suffix = "-#{counter += 1}"
         conditions[1] = "#{base[0..limit-suffix.size-1]}#{suffix}"
         send("#{self.class.permalink_field}=", conditions[1])
