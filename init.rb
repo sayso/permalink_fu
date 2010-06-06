@@ -1,2 +1,2 @@
-require 'lib/string_ext'
+require 'string_ext'
 ActiveRecord::Base.extend PermalinkFu::PluginMethods
