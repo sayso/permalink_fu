@@ -12,7 +12,7 @@ module PermalinkFu
 
     # This method does the actual permalink escaping.
     def escape(string)
-      result = string.to_s.convert_accents
+      result = ActiveSupport::Inflector.transliterate(string.to_s)
       result = Iconv.iconv(translation_to, translation_from, result).to_s if translation_to && translation_from
       result.gsub!(/[^\x00-\x7F]+/, '') # Remove anything non-ASCII entirely (e.g. diacritics).
       result.gsub!(/[^\w_ \-]+/i,   '') # Remove unwanted chars.
@@ -84,7 +84,7 @@ module PermalinkFu
       end
 
       define_method :"#{self.permalink_field}=" do |value|
-        value.blank? ? '' : PermalinkFu.escape(value)
+        write_attribute(self.permalink_field, value.blank? ? '' : PermalinkFu.escape(value))
       end
 
     end
