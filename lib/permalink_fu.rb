@@ -12,7 +12,7 @@ module PermalinkFu
 
     # This method does the actual permalink escaping.
     def escape(string)
-      result = string.to_s.convert_accents
+      result = ActiveSupport::Inflector.transliterate(string.to_s)
       result = Iconv.iconv(translation_to, translation_from, result).to_s if translation_to && translation_from
       result.gsub!(/[^\x00-\x7F]+/, '') # Remove anything non-ASCII entirely (e.g. diacritics).
       result.gsub!(/[^\w_ \-]+/i,   '') # Remove unwanted chars.
@@ -61,53 +61,38 @@ module PermalinkFu
     #   end
     #
     def has_permalink(attr_names = [], permalink_field = nil, options = {})
+      include InstanceMethods
+
       if permalink_field.is_a?(Hash)
         options = permalink_field
         permalink_field = nil
       end
-      ClassMethods.setup_permalink_fu_on self do
-        self.permalink_attributes = Array(attr_names)
-        self.permalink_field      = (permalink_field || 'permalink').to_s
-        self.permalink_options    = {:unique => true}.update(options)
-      end
-    end
-  end
 
-  # Contains class methods for ActiveRecord models that have permalinks
-  module ClassMethods
-    def self.setup_permalink_fu_on(base)
-      base.extend self
-      class << base
-        attr_accessor :permalink_options
-        attr_accessor :permalink_attributes
-        attr_accessor :permalink_field
-      end
-      base.send :include, InstanceMethods
 
-      yield
+      cattr_accessor :permalink_options
+      cattr_accessor :permalink_attributes
+      cattr_accessor :permalink_field
 
-      if base.permalink_options[:unique]
-        base.before_validation :create_unique_permalink
+      self.permalink_attributes = Array(attr_names)
+      self.permalink_field      = (permalink_field || 'permalink').to_s
+      self.permalink_options    = {:unique => true}.update(options)
+
+      if self.permalink_options[:unique]
+        before_validation :create_unique_permalink
       else
-        base.before_validation :create_common_permalink
+        before_validation :create_common_permalink
       end
-      class << base
-        alias_method :define_attribute_methods_without_permalinks, :define_attribute_methods
-        alias_method :define_attribute_methods, :define_attribute_methods_with_permalinks
-      end unless base.respond_to?(:define_attribute_methods_without_permalinks)
-    end
 
-    def define_attribute_methods_with_permalinks
-      if value = define_attribute_methods_without_permalinks
-        evaluate_attribute_method permalink_field, "def #{self.permalink_field}=(new_value);write_attribute(:#{self.permalink_field}, new_value.blank? ? '' : PermalinkFu.escape(new_value));end", "#{self.permalink_field}="
+      define_method :"#{self.permalink_field}=" do |value|
+        write_attribute(self.permalink_field, value.blank? ? '' : PermalinkFu.escape(value))
       end
-      value
+
     end
   end
 
   # This contains instance methods for ActiveRecord models that have permalinks.
   module InstanceMethods
-  protected
+    protected
     def create_common_permalink
       return unless should_create_permalink?
       if read_attribute(self.class.permalink_field).blank? || permalink_fields_changed?
@@ -158,7 +143,7 @@ module PermalinkFu
       str.blank? ? PermalinkFu.random_permalink : str
     end
 
-  private
+    private
     def should_create_permalink?
       if self.class.permalink_field.blank?
         false
