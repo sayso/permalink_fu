@@ -1,1 +1,2 @@
-ActiveRecord::Base.extend PermalinkFu::PluginMethods
+require 'permalink_fu'
+ActiveRecord::Base.extend PermalinkFu::ClassMethods

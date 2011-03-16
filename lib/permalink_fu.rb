@@ -6,6 +6,7 @@ end
 
 require 'digest/sha1'
 module PermalinkFu
+
   class << self
     attr_accessor :translation_to
     attr_accessor :translation_from
@@ -30,7 +31,7 @@ module PermalinkFu
   end
 
   # This is the plugin method available on all ActiveRecord models.
-  module PluginMethods
+  module ClassMethods
     # Specifies the given field(s) as a permalink, meaning it is passed through PermalinkFu.escape and set to the permalink_field.  This
     # is done
     #
@@ -92,7 +93,9 @@ module PermalinkFu
 
   # This contains instance methods for ActiveRecord models that have permalinks.
   module InstanceMethods
+    
     protected
+
     def create_common_permalink
       return unless should_create_permalink?
       if read_attribute(self.class.permalink_field).blank? || permalink_fields_changed?
