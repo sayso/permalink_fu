@@ -11,6 +11,6 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ["lib"]
 
-  s.add_dependency('active_record', '>= 3.0.5')
-  s.add_dependency('active_support', '>= 3.0.5')
+  s.add_dependency('activerecord', '>= 3.0.5')
+  s.add_dependency('activesupport', '>= 3.0.5')
 end
