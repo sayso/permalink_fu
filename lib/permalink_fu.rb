@@ -5,6 +5,8 @@ rescue Object
 end
 
 require 'digest/sha1'
+require 'permalink_fu/version'
+
 module PermalinkFu
 
   def self.included(base)
