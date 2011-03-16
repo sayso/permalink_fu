@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "permalink_fu"
-  s.version     = PermalinkFu::VERSION
+  s.version     = "0.0.1"
   s.platform    = Gem::Platform::RUBY
   s.rubyforge_project = "knapo-permalink_fu"
 
