@@ -7,6 +7,10 @@ end
 require 'digest/sha1'
 module PermalinkFu
 
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+
   class << self
     attr_accessor :translation_to
     attr_accessor :translation_from
@@ -185,3 +189,5 @@ if Object.const_defined?(:Iconv)
   PermalinkFu.translation_to   = 'ascii//translit//IGNORE'
   PermalinkFu.translation_from = 'utf-8'
 end
+
+ActiveRecord::Base.class_eval { include PermalinkFu }
