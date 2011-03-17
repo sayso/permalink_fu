@@ -191,4 +191,5 @@ if Object.const_defined?(:Iconv)
   PermalinkFu.translation_from = 'utf-8'
 end
 
+
 ActiveRecord::Base.class_eval { include PermalinkFu }
