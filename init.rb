@@ -1,1 +1,1 @@
-require 'permalink_fu'
+require File.join(File.dirname(__FILE__), "lib", "permalink_fu")

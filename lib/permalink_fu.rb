@@ -1,10 +1,3 @@
-begin
-  require 'iconv'
-rescue Object
-  puts "no iconv, you might want to look into it."
-end
-
-require 'digest/sha1'
 
 module PermalinkFu
 
@@ -25,13 +18,13 @@ module PermalinkFu
       result.gsub!(/[ \-]+/i,      '-') # No more than one of the separator in a row.
       result.gsub!(/^\-|\-$/i,      '') # Remove leading/trailing separator.
       result.downcase!
-      result.size.zero? ? random_permalink(string) : result
+      result.size.zero? ? random_permalink : result
     rescue
-      random_permalink(string)
+      random_permalink
     end
     
-    def random_permalink(seed = nil)
-      Digest::SHA1.hexdigest("#{seed}#{Time.now.to_s.split(//).sort_by {rand}}")
+    def random_permalink
+      ActiveSupport::SecureRandom.hex(16)
     end
   end
 
@@ -186,10 +179,13 @@ module PermalinkFu
   end
 end
 
-if Object.const_defined?(:Iconv)
+begin
+  require 'iconv'
+rescue Object
+  puts "No Iconv found, you might want to look into it."
+end
+
+if defined?(Iconv)
   PermalinkFu.translation_to   = 'ascii//translit//IGNORE'
   PermalinkFu.translation_from = 'utf-8'
 end
-
-
-ActiveRecord::Base.class_eval { include PermalinkFu }
