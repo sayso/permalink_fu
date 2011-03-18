@@ -1,5 +1,4 @@
 require 'rails'
-require 'permalink_fu'
 
 module PermalinkFu
   
