@@ -11,9 +11,6 @@ module PermalinkFu
 
   class << self
 
-    attr_accessor :translation_to
-    attr_accessor :translation_from
-
     # This method does the actual permalink escaping.
     def escape(string)
       result = ::ActiveSupport::Inflector.transliterate(string.to_s)
