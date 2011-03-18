@@ -1,45 +1,9 @@
-begin
-  require 'iconv'
-rescue Object
-  puts "No Iconv found, you might want to look into it."
-end
-
 module PermalinkFu
 
   module ActiveRecord
 
     def self.included(base)
       base.extend(ClassMethods)
-    end
-
-    class << self
-
-      attr_accessor :translation_to
-      attr_accessor :translation_from
-
-      # This method does the actual permalink escaping.
-      def escape(string)
-        result = ActiveSupport::Inflector.transliterate(string.to_s)
-        result = iconvify(result)
-        result.gsub!(/[^\x00-\x7F]+/, '') # Remove anything non-ASCII entirely (e.g. diacritics).
-        result.gsub!(/[^\w_ \-]+/i,   '') # Remove unwanted chars.
-        result.gsub!(/[ \-]+/i,      '-') # No more than one of the separator in a row.
-        result.gsub!(/^\-|\-$/i,      '') # Remove leading/trailing separator.
-        result.downcase!
-        result.size.zero? ? random_permalink : result
-      rescue
-        random_permalink
-      end
-
-      def random_permalink
-        ::ActiveSupport::SecureRandom.hex(16)
-      end
-
-      def iconvify(string)
-        return string unless defined?(Iconv)
-        return Iconv.iconv('ascii//translit//IGNORE', 'utf-8', string).to_s
-      end
-
     end
 
     # This is the plugin method available on all ActiveRecord models.
